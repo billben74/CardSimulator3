@@ -13,7 +13,6 @@ namespace CardSimulator3ClassLibrary
     public enum FaceValue 
     {
         NoFaceValue = 0,
-        One = 1,
         Two = 2,
         Three = 3,
         Four = 4,
@@ -56,12 +55,30 @@ namespace CardSimulator3ClassLibrary
     /// </summary>
     public class Card
     {
+        /// <summary>
+        /// Make a default card with NoSuit and NoFaceValue
+        /// </summary>
         public Card()
         {
             this.suit = Suit.NoSuit;
             this.faceValue = FaceValue.NoFaceValue;
         }
 
+        /// <summary>
+        /// Make a new instance of a card by copying the values of another card
+        /// </summary>
+        /// <param name="c"></param>
+        public Card(Card otherCard) 
+        {
+            this.suit = otherCard.suit;
+            this.faceValue = otherCard.faceValue;
+        }
+
+        /// <summary>
+        /// Make a card using Suit and FaceValues
+        /// </summary>
+        /// <param name="suit"></param>
+        /// <param name="fv"></param>
         public Card(Suit suit, FaceValue fv)
         {
             this.suit = suit;

@@ -45,6 +45,7 @@ namespace CardSimulator3ClassLibrary
         public void InitialiseCards()
         {
             cardDeck = makeStandardListOfCards(cardDeck);
+            initialised = true;
         }
 
         /// <summary>
@@ -93,9 +94,7 @@ namespace CardSimulator3ClassLibrary
         /// </summary>
         public static List<Card> makeStandardListOfCards()
         {
-
             List<Card> cards = new List<Card>();
-
             foreach (Suit suit in Enum.GetValues(typeof(Suit)))
             {
                 if (suit != Suit.NoSuit)

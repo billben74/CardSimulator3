@@ -137,11 +137,11 @@ namespace CardSimUnitTests
             ///todo change cast to normal
             //to use the Linq extention method Reverse() to generate a reverse iterator we must cast the Array
             //created by Enum.GetValues to IEnumerable<Suit> 
-            foreach (Suit suitReverse in (Enum.GetValues(typeof(Suit)) as IEnumerable<Suit>).Reverse())
+            foreach (Suit suitReverse in ((IEnumerable<Suit>) Enum.GetValues(typeof(Suit))).Reverse())
             {
                 //to use the Linq extention method Reverse() to generate a reverse iterator we must cast the Array
                 //created by Enum.GetValues to IEnumerable<FaceValue> 
-                foreach (FaceValue fvReverse in (Enum.GetValues(typeof(FaceValue)) as IEnumerable<FaceValue>).Reverse())
+                foreach (FaceValue fvReverse in ((IEnumerable<FaceValue>) Enum.GetValues(typeof(FaceValue))).Reverse())
                 {
                     foreach (Suit suitForward in Enum.GetValues(typeof(Suit)))
                     {

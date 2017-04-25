@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Linq;
 using CardSimulator3ClassLibrary;
 using CardSimUnitTests;
 
@@ -98,16 +99,6 @@ namespace CardSimulator3UnitTest
             }
         }
 
-        ///TODO
-        /// <summary>
-        /// 
-        /// </summary>
-        [TestMethod]
-        public void TestDifferenceBetweenBothOverloadsOfmakeStandardListOfCards() 
-        {
-
-        }
-
         /// <summary>
         /// Test cloneDeck by seeing if a standard deck is produced.
         /// The Cards should be equal by value but should be different references.
@@ -120,7 +111,7 @@ namespace CardSimulator3UnitTest
         /// I just want to test and PrivateObject does the relfection work for me.
         /// </remarks>
         [TestMethod]
-        public void TestcloneDeck()
+        public void TestCloneDeck()
         {
             //completeDeck
             DeckOfCards deck = new DeckOfCards();
@@ -144,14 +135,85 @@ namespace CardSimulator3UnitTest
             
         }
 
+
+        /// <summary>
+        /// Test SetDeck
+        /// </summary>
+        [TestMethod]
+        public void TestSetDeck()
+        {
+            DeckOfCards deck = new DeckOfCards();
+            List<Card> cards = new List<Card>();
+            Card[] threeCards = { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four) };
+            cards.Add(new Card(Suit.Spades, FaceValue.Two));
+            cards.Add(new Card(Suit.Spades, FaceValue.Three));
+            cards.Add(new Card(Suit.Spades, FaceValue.Four));
+            deck.SetDeck(cards);
+            for (int i = 0; i < threeCards.Length; i++) 
+            {
+                Assert.AreEqual(threeCards[i], deck.getNextCard());
+            }
+
+        }
+
+        /// <summary>
+        /// Testing if a pack of cards is randomised.
+        /// You are trying to create a counter for each of the different permutations of a three pack deck
+        /// You will then  run this maybe 10000. 
+        /// You will then use some criteria to decide that the result is a good distribtion
+        /// Perhaps you might reearch more on how to decide if a distribution is good.
+        /// THe sequenceEquals doesn't seem to work so look to that first
+        /// YOu may want to research more 
+        /// See https://blog.codinghorror.com/the-danger-of-naivete/
+        /// </summary>
         [TestMethod]
         public void TestDeckOfCardsShuffle()
         {
             DeckOfCards deck = new DeckOfCards();
-            deck.InitialiseCards();
-            
+            List<Card> cards = new List<Card>()
+            cards.Add(new Card(Suit.Spades, FaceValue.Two));
+            cards.Add(new Card(Suit.Spades, FaceValue.Three));
+            cards.Add(new Card(Suit.Spades, FaceValue.Four));
+            deck.SetDeck(cards);
 
-            deck.RandomiseCards();
+            List<List<Card>> binOfDecks = new List<List<Card>>();
+            List<Card> temp = new List<Card>();
+
+            int TWO_THREE_FOUR = 0;
+            int TWO_FOUR_THREE = 0;
+            int THREE_TWO_FOUR = 0;
+            int THREE_FOUR_TWO = 0;
+            int FOUR_TWO_FOUR = 0;
+            int FOUR_THREE_FOUR = 0;
+
+            for (int i = 0; i < 1000; i++) 
+            {
+
+                deck.RandomiseCards();
+                temp = deck.cloneDeck();
+                
+                //each permumtation
+                Card [] twoThreeFour = new Card[]  {new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four)};
+                Card [] twoFourThree = new Card[]  {new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three)};
+                Card [] threeTwoFour = new Card[]  {new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four)};
+                Card [] threeFourTwo = new Card[]  {new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two)};
+                Card [] fourTwoThree = new Card[]  {new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three)};
+                Card [] fourThreeFour = new Card[]  {new Card(Suit.Spades, FaceValue.Four),  new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two)};
+
+                //bins
+                TWO_THREE_FOUR += temp.SequenceEqual(twoThreeFour) == true ? 1 : 0;
+                TWO_FOUR_THREE += temp.SequenceEqual(twoFourThree) == true ? 1 : 0;
+                THREE_TWO_FOUR += temp.SequenceEqual(threeTwoFour) == true ? 1 : 0;
+                THREE_FOUR_TWO += temp.SequenceEqual(threeFourTwo) == true ? 1 : 0;
+                FOUR_TWO_FOUR += temp.SequenceEqual(fourTwoThree) == true ? 1 : 0;
+                FOUR_THREE_FOUR += temp.SequenceEqual(fourThreeFour) == true ? 1 : 0;
+
+              
+            
+            }
+            int look = 1;
+
+
         }
 
 

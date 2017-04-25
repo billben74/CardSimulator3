@@ -39,6 +39,16 @@ namespace CardSimulator3ClassLibrary
             return tmp;
         }
 
+
+        /// <summary>
+        /// Set the deck
+        /// </summary>
+        /// <param name="deck"></param>
+        public void SetDeck (List<Card> deck)
+        {
+            this.cardDeck = deck;
+        }
+
         /// <summary>
         /// This allows the user to get a deck of cards.
         /// This is a deep copy, a clone, of the current  cardDeck (List of cards) in the DeckOfCards
@@ -82,14 +92,17 @@ namespace CardSimulator3ClassLibrary
         /// Shuffling algorithm based on Fisher-Yates
         /// Adapted from the reference below.
         /// </summary>
-        /// <see cref="http://stackoverflow.com/questions/273313/randomize-a-listt"/>
+        /// <see cref="https://blog.codinghorror.com/the-danger-of-naivete/"/>
         /// <typeparam name="T">The type of the list</typeparam>
         /// <param name="list">The list to be shuffled</param>
         /// <param name="rnd">Random class instance</param>
         private List<Card> Shuffle<Card>(List<Card> list, Random rnd)
         {
-            for (int i = 0; i < list.Count; i++)
-                Swap(list, i, rnd.Next(i, list.Count));
+            for (int i = list.Count - 1; i > 0; i--)
+            {
+                int n = rnd.Next(i + 1); 
+                Swap(list, i, n);
+            }
             return list;
         }
 

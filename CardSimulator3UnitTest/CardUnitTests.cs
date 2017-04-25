@@ -14,7 +14,6 @@ namespace CardSimUnitTests
     {
         /// <summary>
         /// Test each Card face value by iterating over each possible FaceValue
-        /// 
         /// </summary>
         [TestMethod]
         public void TestCardFaceValues()
@@ -184,7 +183,6 @@ namespace CardSimUnitTests
         /// <summary>
         /// Test to see if inequality operator will correctly identify all dissimilar cards as unequal
         /// Also tests that any null cards will cause != to return
-        /// Uses a utility f
         /// </summary>
         [TestMethod]
         public void TestInEqualityOperator() 
@@ -199,16 +197,15 @@ namespace CardSimUnitTests
             rhs = new Card();
             Assert.IsTrue(lhs != rhs);
 
-            Action<Card, Card> hashCodeLogicDelegate = delegate(Card arg1, Card arg2) { Assert.IsTrue(arg1 != arg2); };
+            Action<Card, Card> inEqualityDelegate = delegate(Card arg1, Card arg2) { Assert.IsTrue(arg1 != arg2); };
 
-            UtililtyTestingAllDifferentNonNullCardPairsDelegate(hashCodeLogicDelegate);
+            UtililtyTestingAllDifferentNonNullCardPairsDelegate(inEqualityDelegate);
         
           
         }
 
         /// <summary>
         /// Test that identically valued cards give the same hash code.
-        /// Tes
         /// </summary>
         [TestMethod]
         public void TestGetHashCode()

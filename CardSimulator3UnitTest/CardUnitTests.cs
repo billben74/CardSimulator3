@@ -131,7 +131,7 @@ namespace CardSimUnitTests
         /// </summary>
         /// <param name="testingDelegate">non returning delagate that has two Cards and arguments to be used to carry out the specific test</param>
         [TestMethod]
-        public void UtililtyTestingAllDifferentNonNullCardPairsDelegate(Action<Card,Card> testingDelegate)
+        public static void UtililtyTestingAllDifferentNonNullCardPairsDelegate(Action<Card,Card> testingDelegate)
         {
 
             ///todo change cast to normal
@@ -167,7 +167,7 @@ namespace CardSimUnitTests
         /// This uses a delegate that has two cards as paramaters to actually carry out the test.
         /// </summary>
         [TestMethod]
-        public void UtilityTestingAllPossibleIdenticalPairsOfCards(Action<Card, Card> testingDelegate) 
+        public static void UtilityTestingAllPossibleIdenticalPairsOfCards(Action<Card, Card> testingDelegate) 
         {
              foreach (Suit suitForward in Enum.GetValues(typeof(Suit)))
              {
@@ -212,8 +212,7 @@ namespace CardSimUnitTests
         /// </summary>
         [TestMethod]
         public void TestGetHashCode()
-        {
-        
+        {       
             Action<Card, Card> hashCodeLogicNegativeDelegate 
                 = delegate (Card arg1, Card arg2) { Assert.IsTrue(arg1.GetHashCode() != arg2.GetHashCode());};
 

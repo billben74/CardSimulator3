@@ -40,6 +40,25 @@ namespace CardSimulator3ClassLibrary
         }
 
         /// <summary>
+        /// This allows the user to get a deck of cards.
+        /// This is a deep copy, a clone, of the current  cardDeck (List of cards) in the DeckOfCards
+        /// </summary>
+        /// <returns>Clone of cardDeck</returns>
+        public List<Card> cloneDeck() 
+        {
+            if (initialised == false)
+            {
+                InitialiseCards();
+            }
+            List<Card> returnClonedDeck = new List<Card>();
+            foreach (Card cardToClone in cardDeck) 
+            {
+                returnClonedDeck.Add(new Card(cardToClone));
+            }
+            return returnClonedDeck;   
+        }
+
+        /// <summary>
         /// Fill up the deck with each of the normal 52 cards in order.
         /// </summary>
         public void InitialiseCards()
@@ -69,13 +88,13 @@ namespace CardSimulator3ClassLibrary
         /// <param name="rnd">Random class instance</param>
         private List<Card> Shuffle<Card>(List<Card> list, Random rnd)
         {
-            for (var i = 0; i < list.Count; i++)
+            for (int i = 0; i < list.Count; i++)
                 Swap(list, i, rnd.Next(i, list.Count));
             return list;
         }
 
         /// <summary>
-        /// Simple swap utility for a List<Card> 
+        /// Simple swap utility for a List of cards 
         /// </summary>
         /// <typeparam name="Card"></typeparam>
         /// <param name="list"></param>
@@ -112,10 +131,10 @@ namespace CardSimulator3ClassLibrary
         }
 
         /// <summary>
-        /// Take a List<Card> and modify it to a standards list of cards and return this instance
+        /// Take a List of card and modify it to a standards list of cards and return this instance
         /// </summary>
         /// <returns>Your list which is now populated with a standard 52 cards</returns>
-        /// <throws>NullReferenceException if a null List<Card> if supplied as argument </throws>
+        /// <throws>NullReferenceException if a null List of cards if supplied as argument </throws>
         public static List<Card> makeStandardListOfCards(List<Card> toBeModifiedAsStandard)
         {
             if (Object.ReferenceEquals(toBeModifiedAsStandard,null))

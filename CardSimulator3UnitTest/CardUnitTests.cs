@@ -10,7 +10,7 @@ namespace CardSimUnitTests
     /// Class for the unit tests of the Card Sim
     /// </summary>
     [TestClass]
-    public class CardSimulatorUnitTests
+    public class CardUnitTests
     {
         /// <summary>
         /// Test each Card face value by iterating over each possible FaceValue
@@ -81,6 +81,25 @@ namespace CardSimUnitTests
             FaceValueEnumerationTestSuitColorUtility(card, SuitColor.Red);
         }
 
+
+        /// <summary>
+        /// Test the Equals override that takes a card as a paramter 
+        /// </summary>
+        /// <remarks>
+        /// Stratergy Pattern used to make unit tests more Don't Repeat Yourself
+        /// </remarks>
+        [TestMethod]
+        public void TestOverrideEqualsCardBased()
+        {
+
+            Action<Card, Card> cardEqualsShouldGiveFalse = delegate(Card arg1, Card arg2) { Assert.IsFalse(arg1.Equals(arg2)); };
+            UtililtyTestingAllDifferentNonNullCardPairsDelegate(cardEqualsShouldGiveFalse);
+
+            Action<Card, Card> cardEqualsDelegate = delegate(Card arg1, Card arg2) { Assert.IsTrue(arg1.Equals(arg2)); };
+            UtilityTestingAllPossibleIdenticalPairsOfCards(cardEqualsDelegate);
+
+        }
+
         /// <summary>
         /// Test that the overriden base class (object) Equals(object obj) 
         /// will correctly return true for all possible values of two (equal) non-null Cards
@@ -89,7 +108,10 @@ namespace CardSimUnitTests
         /// It seems better to test null giving false in this test method not assuming coverage by other test methods
         /// in case someone changed the implementation/connection between methods. 
         /// </summary>
-        /// <see>some advice taken from http://codinghelmet.com/?path=howto/testing-equals-and-gethashcode</see>
+        /// <see>some advice taken from http://codinghelmet.com/?path=howto/testing-equals-and-gethashcode </see>
+        /// <remarks>Written before the utility functions. As this is the Equals that other methods test I decided to leave it
+        /// as is. Perhaps testing via a slightly different procedure may guard and systematic errors in the testing methods; 
+        /// that is perhaps if changes cause problems having different testing implementations is a defence in depth idea. Perhaps...</remarks>
         [TestMethod]
         public void TestOverrideEqualsObjectBased() 
         {
@@ -128,6 +150,9 @@ namespace CardSimUnitTests
         /// This will ignore similar cards as happens when they forward and reverse iterations collide.
         /// This uses a delegate that has two cards as paramaters to actually carry out the test.
         /// </summary>
+        /// <remarks>
+        /// Stratergy Pattern used to make unit tests more Don't Repeat Yourself
+        /// </remarks>
         /// <param name="testingDelegate">non returning delagate that has two Cards and arguments to be used to carry out the specific test</param>
         [TestMethod]
         public static void UtililtyTestingAllDifferentNonNullCardPairsDelegate(Action<Card,Card> testingDelegate)
@@ -165,6 +190,9 @@ namespace CardSimUnitTests
         /// Utility that can create all possible identical pairs of cards.
         /// This uses a delegate that has two cards as paramaters to actually carry out the test.
         /// </summary>
+        /// <remarks>
+        /// Stratergy Pattern used to make unit tests more Don't Repeat Yourself
+        /// </remarks>
         [TestMethod]
         public static void UtilityTestingAllPossibleIdenticalPairsOfCards(Action<Card, Card> testingDelegate) 
         {
@@ -180,10 +208,43 @@ namespace CardSimUnitTests
 
         }
 
+
         /// <summary>
-        /// Test to see if inequality operator will correctly identify all dissimilar cards as unequal
+        /// Test to see if equality operator will correctly identify all similar cards as equal
         /// Also tests that any null cards will cause != to return
         /// </summary>
+        /// <remarks>
+        /// Stratergy Pattern used to make unit tests more Don't Repeat Yourself
+        /// </remarks>
+        [TestMethod]
+        public void TestEqualityOperator()
+        {
+            Card lhs = null;
+            Card rhs = null;
+            Assert.IsFalse(lhs == rhs);
+            lhs = new Card();
+            Assert.IsFalse(lhs == rhs);
+            lhs = null;
+            rhs = new Card();
+            Assert.IsFalse(lhs == rhs);
+
+            Action<Card, Card> EqualityDelegateTrue = delegate(Card arg1, Card arg2) { Assert.IsTrue(arg1 == arg2); };
+            UtilityTestingAllPossibleIdenticalPairsOfCards(EqualityDelegateTrue);
+
+            Action<Card, Card> EqualityDelegateFalse = delegate(Card arg1, Card arg2) { Assert.IsFalse(arg1 == arg2); };
+            UtililtyTestingAllDifferentNonNullCardPairsDelegate(EqualityDelegateFalse);
+
+
+        }
+
+        /// <summary>
+        /// Test to see if inequality operator will correctly identify all dissimilar cards as unequal
+        /// and that all similar cards give false with != operator
+        /// Also tests that any null cards will cause != to return
+        /// </summary>
+        /// <remarks>
+        /// Stratergy Pattern used to make unit tests more Don't Repeat Yourself
+        /// </remarks>
         [TestMethod]
         public void TestInEqualityOperator() 
         {
@@ -200,13 +261,18 @@ namespace CardSimUnitTests
             Action<Card, Card> inEqualityDelegate = delegate(Card arg1, Card arg2) { Assert.IsTrue(arg1 != arg2); };
 
             UtililtyTestingAllDifferentNonNullCardPairsDelegate(inEqualityDelegate);
-        
+            Action<Card, Card> EqualityDelegate = delegate(Card arg1, Card arg2) { Assert.IsFalse(arg1 != arg2); };
+
+            UtilityTestingAllPossibleIdenticalPairsOfCards(EqualityDelegate);
           
         }
 
         /// <summary>
         /// Test that identically valued cards give the same hash code.
         /// </summary>
+             /// <remarks>
+        /// Stratergy Pattern used to make unit tests more Don't Repeat Yourself
+        /// </remarks>
         [TestMethod]
         public void TestGetHashCode()
         {       
@@ -214,6 +280,7 @@ namespace CardSimUnitTests
                 = delegate (Card arg1, Card arg2) { Assert.IsTrue(arg1.GetHashCode() != arg2.GetHashCode());};
 
             UtililtyTestingAllDifferentNonNullCardPairsDelegate(hashCodeLogicNegativeDelegate);
+
             Action<Card, Card> hashCodeLogicPositiveResult
                 = delegate(Card arg1, Card arg2) { Assert.IsTrue(arg1.GetHashCode() == arg2.GetHashCode()); };
             UtilityTestingAllPossibleIdenticalPairsOfCards(hashCodeLogicPositiveResult);

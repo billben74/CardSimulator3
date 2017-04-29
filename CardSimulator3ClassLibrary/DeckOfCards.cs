@@ -12,6 +12,12 @@ namespace CardSimulator3ClassLibrary
         private bool initialised = false;
         private bool randomised = false;
         private List<Card> cardDeck = new List<Card>();
+        /// <summary>
+        /// The same randomNumberGenerator will keep on giving different numbers.
+        /// You can reset the randomNumberGenerator using the public method 
+        /// </summary>
+        private static readonly Random randomNumberGenerator = new Random();
+        private static readonly object syncLock = new object(); //Since we are using a static instance we could get thread issues so i'll use sync
 
         /// <summary>
         /// States if there are any cards left
@@ -77,14 +83,15 @@ namespace CardSimulator3ClassLibrary
             initialised = true;
         }
 
+
         /// <summary>
         /// Simple way to randomise the cards in a Deck
         /// </summary>
         public void RandomiseCards()
         {
-            Random rnd = new Random();
-            cardDeck = Shuffle(cardDeck, rnd);
+            cardDeck = Shuffle(cardDeck, randomNumberGenerator);
             randomised = true;
+            initialised = true;
         }
 
 
@@ -96,14 +103,18 @@ namespace CardSimulator3ClassLibrary
         /// <typeparam name="T">The type of the list</typeparam>
         /// <param name="list">The list to be shuffled</param>
         /// <param name="rnd">Random class instance</param>
-        private List<Card> Shuffle<Card>(List<Card> list, Random rnd)
+        private List<Card> Shuffle<Card>(List<Card> cardList, Random rnd)
         {
-            for (int i = list.Count - 1; i > 0; i--)
+            int n = 0;
+            for (int i = cardList.Count - 1; i > 0; i--)
             {
-                int n = rnd.Next(i + 1); 
-                Swap(list, i, n);
+                lock (syncLock) //I am using a static instance for rnd, so we should lock the thread.
+                { 
+                    n = rnd.Next(i + 1);
+                }
+                Swap(cardList, i, n);
             }
-            return list;
+            return cardList;
         }
 
         /// <summary>

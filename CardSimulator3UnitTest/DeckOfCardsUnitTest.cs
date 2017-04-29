@@ -3,9 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 using CardSimulator3ClassLibrary;
-using CardSimUnitTests;
 
-namespace CardSimulator3UnitTest
+namespace CardSimUnitTests
 {
 
     [TestClass]
@@ -170,7 +169,7 @@ namespace CardSimulator3UnitTest
         public void TestDeckOfCardsShuffle()
         {
             DeckOfCards deck = new DeckOfCards();
-            List<Card> cards = new List<Card>()
+            List<Card> cards = new List<Card>();
             cards.Add(new Card(Suit.Spades, FaceValue.Two));
             cards.Add(new Card(Suit.Spades, FaceValue.Three));
             cards.Add(new Card(Suit.Spades, FaceValue.Four));

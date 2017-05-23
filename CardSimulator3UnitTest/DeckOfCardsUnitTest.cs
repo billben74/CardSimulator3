@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 using CardSimulator3ClassLibrary;
+using System.Data.Entity;
+using System.ComponentModel.DataAnnotations;
 
 namespace CardSimUnitTests
 {
@@ -10,6 +12,26 @@ namespace CardSimUnitTests
     [TestClass]
     public class DeckOfCardsUnitTest
     {
+
+        public class TestShuffleResults : DbContext
+        {
+            public DbSet ShuffleResults { get; set; }
+        }
+
+        public class TestDeckOfCardsShuffleUnitTestResult 
+        {
+            [Key] 
+            public int ID {get;set;}
+
+
+            public int tWO_THREE_FOUR { get; set; }
+            public int tWO_FOUR_THREE { get; set; }
+            public int tHREE_TWO_FOUR { get; set; }
+            public int tHREE_FOUR_TWO { get; set; }
+            public int fOUR_TWO_FOUR { get; set; }
+            public int fOUR_THREE_FOUR { get; set; }
+ 
+        }
 
         private Card[] completeDeck;
 
@@ -185,19 +207,19 @@ namespace CardSimUnitTests
             int FOUR_TWO_FOUR = 0;
             int FOUR_THREE_FOUR = 0;
 
-            for (int i = 0; i < 1000; i++) 
+            for (int i = 0; i < 1000; i++)
             {
 
                 deck.RandomiseCards();
                 temp = deck.cloneDeck();
-                
+
                 //each permumtation
-                Card [] twoThreeFour = new Card[]  {new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four)};
-                Card [] twoFourThree = new Card[]  {new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three)};
-                Card [] threeTwoFour = new Card[]  {new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four)};
-                Card [] threeFourTwo = new Card[]  {new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two)};
-                Card [] fourTwoThree = new Card[]  {new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three)};
-                Card [] fourThreeFour = new Card[]  {new Card(Suit.Spades, FaceValue.Four),  new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two)};
+                Card[] twoThreeFour = new Card[] { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four) };
+                Card[] twoFourThree = new Card[] { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three) };
+                Card[] threeTwoFour = new Card[] { new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four) };
+                Card[] threeFourTwo = new Card[] { new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two) };
+                Card[] fourTwoThree = new Card[] { new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three) };
+                Card[] fourThreeFour = new Card[] { new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two) };
 
                 //bins
                 TWO_THREE_FOUR += temp.SequenceEqual(twoThreeFour) == true ? 1 : 0;
@@ -206,12 +228,23 @@ namespace CardSimUnitTests
                 THREE_FOUR_TWO += temp.SequenceEqual(threeFourTwo) == true ? 1 : 0;
                 FOUR_TWO_FOUR += temp.SequenceEqual(fourTwoThree) == true ? 1 : 0;
                 FOUR_THREE_FOUR += temp.SequenceEqual(fourThreeFour) == true ? 1 : 0;
-
+                ///TODO go here and read and finish data base connection
+                /* https://msdn.microsoft.com/en-us/library/bb384428.aspx
+                using (var db = new TestShuffleResults())
+                 {
+                     db.(new TestDeckOfCardsShuffleUnitTestResult 
+                    { tWO_THREE_FOUR = TWO_THREE_FOUR, tWO_FOUR_THREE  = TWO_FOUR_THREE , tHREE_TWO_FOUR = THREE_TWO_FOUR, 
+                        tHREE_FOUR_TWO = THREE_TWO_FOUR, fOUR_TWO_FOUR = FOUR_TWO_FOUR, fOUR_THREE_FOUR = FOUR_THREE_FOUR });
+                     db.SaveChanges();
               
             
+            */
             }
             int look = 1;
 
+           
+
+            
 
         }
 

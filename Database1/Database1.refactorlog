@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="38881065-161b-4ef6-8c5c-67564e20c278" ChangeDateTime="05/02/2017 16:52:39">
+    <Property Name="ElementName" Value="[dbo].[TestDeckOfCardsShuffleUnitTestResult].[            int THREE_TWO_FOUR = 0;]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[TestDeckOfCardsShuffleUnitTestResult]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="THREE_TWO_FOUR" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="002e2908-9d72-4d1d-a44c-e49d02e36f40" ChangeDateTime="05/02/2017 18:14:00">
+    <Property Name="ElementName" Value="[dbo].[TestDeckOfCardsShuffleUnitTestResult].[THREE_TWO_FOUR]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[TestDeckOfCardsShuffleUnitTestResult]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="TWO_FOUR_THREE" />
+  </Operation>
+</Operations>

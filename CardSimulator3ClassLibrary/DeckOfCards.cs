@@ -10,48 +10,62 @@ namespace CardSimulator3ClassLibrary
     public class DeckOfCards
     {
         private bool initialised = false;
-        private bool randomised = false;
+        private bool shuffled = false;
         private List<Card> cardDeck = new List<Card>();
-        /// <summary>
-        /// The same randomNumberGenerator will keep on giving different numbers.
-        /// You can reset the randomNumberGenerator using the public method 
-        /// </summary>
+
         private static readonly Random randomNumberGenerator = new Random();
         private static readonly object syncLock = new object(); //Since we are using a static instance we could get thread issues so i'll use sync
 
-        /// <summary>
-        /// States if there are any cards left
-        /// </summary>
-        /// <returns></returns>
+        public int deckSize() {
+            return cardDeck == null ? 0 : cardDeck.Count + 1;            
+        }
+
         public bool hasCards()
         {
             return cardDeck.Count != 0 ? true : false;
         }
         /// <summary>
-        /// Removes the next card from the deck.
-        /// If the deck has not been initialised with cards
-        /// this method will initialise the cards.
+        /// Gets IEnumerable, Card,
+        /// Use to go through cards in a deck without removing the cards.
+        /// Use Deal to remove cards
         /// </summary>
         /// <returns></returns>
-        public Card getNextCard()
+        public System.Collections.Generic.IEnumerable<Card> GetCardEnumerator()
         {
             if (initialised == false)
             {
                 InitialiseCards();
             }
 
-            Card tmp = cardDeck[0];
-            cardDeck.RemoveAt(0);
-            return tmp;
-        }
+            for (int i = 0; i < cardDeck.Count; i++)
+            {
+                yield return cardDeck[i];
+            }
 
+        }
+        
+        /// <summary>
+        /// Use to deal (remove) cards 
+        /// </summary>
+        /// <returns></returns>
+        public Card DealCard() 
+        {
+            if (initialised == false)
+            {
+                InitialiseCards();
+            }
+            Card cardToDeal = cardDeck[0];
+            cardDeck.RemoveAt(0);
+            return cardToDeal;
+        } 
 
         /// <summary>
-        /// Set the deck
+        /// Set the deck. Setting is also initialising.
         /// </summary>
         /// <param name="deck"></param>
         public void SetDeck (List<Card> deck)
         {
+            initialised = true;
             this.cardDeck = deck;
         }
 
@@ -83,17 +97,21 @@ namespace CardSimulator3ClassLibrary
             initialised = true;
         }
 
-
-        /// <summary>
-        /// Simple way to randomise the cards in a Deck
-        /// </summary>
-        public void RandomiseCards()
+        public List<Card> Shuffle() 
         {
-            cardDeck = Shuffle(cardDeck, randomNumberGenerator);
-            randomised = true;
-            initialised = true;
-        }
+            if (initialised == false)
+            {
+                InitialiseCards();
+                initialised = true;
+            }
+            shuffled = true;
+            return Shuffle(this.cardDeck);
+        } 
 
+        public List<Card> Shuffle(List<Card> cardList)
+        {
+            return Shuffle(cardList, randomNumberGenerator);
+        }
 
         /// <summary>
         /// Shuffling algorithm based on Fisher-Yates
@@ -103,27 +121,25 @@ namespace CardSimulator3ClassLibrary
         /// <typeparam name="T">The type of the list</typeparam>
         /// <param name="list">The list to be shuffled</param>
         /// <param name="rnd">Random class instance</param>
-        private List<Card> Shuffle<Card>(List<Card> cardList, Random rnd)
+        public List<Card> Shuffle(List<Card> cardList, Random rnd)
         {
+
             int n = 0;
             for (int i = cardList.Count - 1; i > 0; i--)
             {
-                lock (syncLock) //I am using a static instance for rnd, so we should lock the thread.
-                { 
+                lock (syncLock) //I am using a static instance for rnd, 
+                //so we should lock the thread in case another thread tries to use the random number gen. 
+                {
                     n = rnd.Next(i + 1);
                 }
                 Swap(cardList, i, n);
             }
+     
+            shuffled = true;
             return cardList;
         }
 
-        /// <summary>
-        /// Simple swap utility for a List of cards 
-        /// </summary>
-        /// <typeparam name="Card"></typeparam>
-        /// <param name="list"></param>
-        /// <param name="i"></param>
-        /// <param name="j"></param>
+
         private void Swap<Card>(List<Card> list, int i, int j)
         {
             var temp = list[i];

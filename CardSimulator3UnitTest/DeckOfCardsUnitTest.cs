@@ -9,29 +9,10 @@ using System.ComponentModel.DataAnnotations;
 namespace CardSimUnitTests
 {
 
+// TODO remove most comments
     [TestClass]
     public class DeckOfCardsUnitTest
     {
-
-        public class TestShuffleResults : DbContext
-        {
-            public DbSet ShuffleResults { get; set; }
-        }
-
-        public class TestDeckOfCardsShuffleUnitTestResult 
-        {
-            [Key] 
-            public int ID {get;set;}
-
-
-            public int tWO_THREE_FOUR { get; set; }
-            public int tWO_FOUR_THREE { get; set; }
-            public int tHREE_TWO_FOUR { get; set; }
-            public int tHREE_FOUR_TWO { get; set; }
-            public int fOUR_TWO_FOUR { get; set; }
-            public int fOUR_THREE_FOUR { get; set; }
- 
-        }
 
         private Card[] completeDeck;
 
@@ -57,23 +38,17 @@ namespace CardSimUnitTests
             }
         }
 
-        /// <summary>
-        /// Test that getNextCard produces a standard List<Cards> by testing against this unit tests array
-        /// of standard cards.
-        /// Also test 52 cards.
-        /// </summary>
         [TestMethod]
-        public void TestDeckOfCardsGetNextCard ()
+        public void TestDeckOfCardsGetEnumerator ()
         {
             int index = 0;
             DeckOfCards deck = new DeckOfCards();
             deck.InitialiseCards();
-            while (deck.hasCards())
+            foreach(Card c in deck.GetCardEnumerator())
             {
-                Card c = deck.getNextCard();
                 Assert.AreEqual(completeDeck[index++], c);
             }
-            Assert.AreEqual(index, 52); // correct number of cards.
+            Assert.AreEqual(index, 52);// correct number of cards.
         }
 
         /// <summary>
@@ -89,6 +64,21 @@ namespace CardSimUnitTests
             {
                 Assert.AreEqual(this.completeDeck[index], testCards[index]);
                 index++;
+            }
+        }
+
+
+        [TestMethod]
+        public void TestDealCard()
+        {
+            DeckOfCards deck = new DeckOfCards();
+            int deckSize = 52;
+            foreach (Card testCard in this.completeDeck)
+            {
+                Card c = deck.DealCard();
+      
+                Assert.AreEqual(testCard, c);
+                Assert.AreEqual(deckSize--, deck.deckSize());
             }
         }
 
@@ -123,12 +113,11 @@ namespace CardSimUnitTests
         /// <summary>
         /// Test cloneDeck by seeing if a standard deck is produced.
         /// The Cards should be equal by value but should be different references.
-        /// The Listof cardss made by cloneDeck and the private field DeckOfCards.cardDeck should be different references.
-        /// <summary>
+        /// The Listof cards made by cloneDeck and the private field DeckOfCards.cardDeck should be different references.
         /// <remarks>
-        /// I realise that testing private methods or fields is on of those contraversal issues that programmers like to argue over
+        /// I realise that testing private methods or fields is on of those controversial issues that programmers like to argue over...
         /// I would simply like to make sure that the private field cardDeck is a different reference as the cloneDeck 
-        /// as this is the whole point of cloneDeck. I don't won't to make it protected and create a wrapper class....
+        /// as this is the whole point of cloneDeck. I don't won't to make it protected and create a wrapper class...
         /// I just want to test and PrivateObject does the relfection work for me.
         /// </remarks>
         [TestMethod]
@@ -144,48 +133,51 @@ namespace CardSimUnitTests
             Assert.IsFalse(Object.ReferenceEquals(useToCheckCloneMakesADifferentReference, clonedDeck));
 
             //Check values of cards in the clonedDeck are the same as in the DeckOfCards.cardDeck
-            //But that the references are different.
-            foreach (Card c in clonedDeck) 
+            IEnumerable<Tuple<Card,Card>> tupledEnumerator = MultipleIterate.Over(clonedDeck,deck.GetCardEnumerator());
+            foreach (var decksTuple in tupledEnumerator)
             {
-                Card getNextCard = deck.getNextCard();
-                Assert.AreEqual(getNextCard, c);
-
-                Assert.IsFalse(Object.ReferenceEquals(getNextCard, c));
+                Assert.AreEqual(decksTuple.Item1, decksTuple.Item2);
+                Assert.IsFalse(Object.ReferenceEquals(decksTuple.Item1, decksTuple.Item2));
             }
-            
-            
         }
-
-
-        /// <summary>
-        /// Test SetDeck
-        /// </summary>
+  
         [TestMethod]
         public void TestSetDeck()
         {
             DeckOfCards deck = new DeckOfCards();
             List<Card> cards = new List<Card>();
-            Card[] threeCards = { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four) };
+            Card[] threeCards = { new Card(Suit.Spades, FaceValue.Two), 
+                                  new Card(Suit.Spades, FaceValue.Three), 
+                                  new Card(Suit.Spades, FaceValue.Four) };
+
             cards.Add(new Card(Suit.Spades, FaceValue.Two));
             cards.Add(new Card(Suit.Spades, FaceValue.Three));
             cards.Add(new Card(Suit.Spades, FaceValue.Four));
-            deck.SetDeck(cards);
-            for (int i = 0; i < threeCards.Length; i++) 
-            {
-                Assert.AreEqual(threeCards[i], deck.getNextCard());
-            }
 
+            deck.SetDeck(cards);
+            IEnumerable<Tuple<Card, Card>> deckAndTestCardListMultpleEnumerator =
+            MultipleIterate.Over(deck.GetCardEnumerator(), threeCards);
+            foreach (var decksTuple in deckAndTestCardListMultpleEnumerator)
+            {
+                Assert.AreEqual(decksTuple.Item1, decksTuple.Item2);
+            }
+                
+           
         }
 
         /// <summary>
-        /// Testing if a pack of cards is randomised.
-        /// You are trying to create a counter for each of the different permutations of a three pack deck
+        /// See https://blog.codinghorror.com/the-danger-of-naivete/
+        /// For rational for using this algorithm        
+        /// Testing if a pack of cards is randomised is what is needed but this is quite involved.
+        /// One possiblilty is to create a counter for each of the different permutations of a three pack deck
         /// You will then  run this maybe 10000. 
         /// You will then use some criteria to decide that the result is a good distribtion
-        /// Perhaps you might reearch more on how to decide if a distribution is good.
-        /// THe sequenceEquals doesn't seem to work so look to that first
-        /// YOu may want to research more 
-        /// See https://blog.codinghorror.com/the-danger-of-naivete/
+        /// This resource has some information
+        ///https://math.stackexchange.com/questions/1189519/chi-square-goodness-of-fit-test-for-uniform-distribution-using-matlab
+        ///https://msdn.microsoft.com/en-us/magazine/mt795190.aspx
+        /// Has a chi-squared test code which could be used. Right now I think this is overkill but if 
+        /// we were going to use this on a poker site then we would need to get to work here. 
+        /// I would also talk to an old friend, Antranig Baseman, who has a PhD in statistics (or someone else with similar skills). 
         /// </summary>
         [TestMethod]
         public void TestDeckOfCardsShuffle()
@@ -196,7 +188,7 @@ namespace CardSimUnitTests
             cards.Add(new Card(Suit.Spades, FaceValue.Three));
             cards.Add(new Card(Suit.Spades, FaceValue.Four));
             deck.SetDeck(cards);
-
+            Random anotherRandom = new Random();  
             List<List<Card>> binOfDecks = new List<List<Card>>();
             List<Card> temp = new List<Card>();
 
@@ -206,28 +198,56 @@ namespace CardSimUnitTests
             int THREE_FOUR_TWO = 0;
             int FOUR_TWO_FOUR = 0;
             int FOUR_THREE_FOUR = 0;
-
-            for (int i = 0; i < 1000; i++)
+            for (int shuffleOverload = 0; shuffleOverload < 3; shuffleOverload++)
             {
+                for (int i = 0; i < 1000; i++)
+                {
+                    switch (shuffleOverload)
+                    {
+                        case 0:
+                            deck.Shuffle();
+                            break;
+                        case 1:
+                            deck.Shuffle(cards);
+                            break;
+                        case 2:
+                            deck.Shuffle(cards, anotherRandom);
+                            break;
+                        default:
+                            throw new IndexOutOfRangeException("Shuffle only has three overloads but the shuffleOverload index is not 0,1 or 2");
+                    }
+                    temp = deck.cloneDeck();
+                    //each permumtation
+                    Card[] twoThreeFour = new Card[] { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four) };
+                    Card[] twoFourThree = new Card[] { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three) };
+                    Card[] threeTwoFour = new Card[] { new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four) };
+                    Card[] threeFourTwo = new Card[] { new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two) };
+                    Card[] fourTwoThree = new Card[] { new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three) };
+                    Card[] fourThreeFour = new Card[] { new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two) };
 
-                deck.RandomiseCards();
-                temp = deck.cloneDeck();
+                    //bins
+                    TWO_THREE_FOUR += temp.SequenceEqual(twoThreeFour) == true ? 1 : 0;
+                    TWO_FOUR_THREE += temp.SequenceEqual(twoFourThree) == true ? 1 : 0;
+                    THREE_TWO_FOUR += temp.SequenceEqual(threeTwoFour) == true ? 1 : 0;
+                    THREE_FOUR_TWO += temp.SequenceEqual(threeFourTwo) == true ? 1 : 0;
+                    FOUR_TWO_FOUR += temp.SequenceEqual(fourTwoThree) == true ? 1 : 0;
+                    FOUR_THREE_FOUR += temp.SequenceEqual(fourThreeFour) == true ? 1 : 0;
 
-                //each permumtation
-                Card[] twoThreeFour = new Card[] { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four) };
-                Card[] twoFourThree = new Card[] { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three) };
-                Card[] threeTwoFour = new Card[] { new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four) };
-                Card[] threeFourTwo = new Card[] { new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two) };
-                Card[] fourTwoThree = new Card[] { new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three) };
-                Card[] fourThreeFour = new Card[] { new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two) };
+            }
+                ///TODO find a good way to test randomness. This is not a good way. See commments above this function.
+                Assert.IsTrue((TWO_THREE_FOUR < 333) && (TWO_THREE_FOUR > 88));
+                Assert.IsTrue((TWO_FOUR_THREE < 333) && (TWO_FOUR_THREE > 88));
+                Assert.IsTrue((THREE_TWO_FOUR < 333) && (THREE_TWO_FOUR > 88));
+                Assert.IsTrue((THREE_FOUR_TWO < 333) && (THREE_FOUR_TWO > 88));
+                Assert.IsTrue((FOUR_TWO_FOUR < 333) && (FOUR_TWO_FOUR > 88));
+                Assert.IsTrue((FOUR_THREE_FOUR < 333) && (FOUR_THREE_FOUR > 88));
 
-                //bins
-                TWO_THREE_FOUR += temp.SequenceEqual(twoThreeFour) == true ? 1 : 0;
-                TWO_FOUR_THREE += temp.SequenceEqual(twoFourThree) == true ? 1 : 0;
-                THREE_TWO_FOUR += temp.SequenceEqual(threeTwoFour) == true ? 1 : 0;
-                THREE_FOUR_TWO += temp.SequenceEqual(threeFourTwo) == true ? 1 : 0;
-                FOUR_TWO_FOUR += temp.SequenceEqual(fourTwoThree) == true ? 1 : 0;
-                FOUR_THREE_FOUR += temp.SequenceEqual(fourThreeFour) == true ? 1 : 0;
+                TWO_THREE_FOUR = 0;
+                TWO_FOUR_THREE = 0;
+                THREE_TWO_FOUR = 0;
+                THREE_FOUR_TWO = 0;
+                FOUR_TWO_FOUR = 0;
+                FOUR_THREE_FOUR = 0;
                 ///TODO go here and read and finish data base connection
                 /* https://msdn.microsoft.com/en-us/library/bb384428.aspx
                 using (var db = new TestShuffleResults())
@@ -240,21 +260,7 @@ namespace CardSimUnitTests
             
             */
             }
-            int look = 1;
 
-           
-
-            
-
-        }
-
-
-
-        [TestMethod]
-        public void TestRandomiseCards()
-        {
-            int index = 0;
-            
         }
     }
 }

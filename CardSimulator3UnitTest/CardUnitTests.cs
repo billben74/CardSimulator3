@@ -158,7 +158,7 @@ namespace CardSimUnitTests
         public static void UtililtyTestingAllDifferentNonNullCardPairsDelegate(Action<Card,Card> testingDelegate)
         {
 
-            ///todo change cast to normal
+            ///TODO change cast to normal
             //to use the Linq extention method Reverse() to generate a reverse iterator we must cast the Array
             //created by Enum.GetValues to IEnumerable<Suit> 
             foreach (Suit suitReverse in ((IEnumerable<Suit>) Enum.GetValues(typeof(Suit))).Reverse())

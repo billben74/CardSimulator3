@@ -154,7 +154,6 @@ namespace CardSimUnitTests
         /// Stratergy Pattern used to make unit tests more Don't Repeat Yourself
         /// </remarks>
         /// <param name="testingDelegate">non returning delagate that has two Cards and arguments to be used to carry out the specific test</param>
-        [TestMethod]
         public static void UtililtyTestingAllDifferentNonNullCardPairsDelegate(Action<Card,Card> testingDelegate)
         {
 
@@ -193,7 +192,6 @@ namespace CardSimUnitTests
         /// <remarks>
         /// Stratergy Pattern used to make unit tests more Don't Repeat Yourself
         /// </remarks>
-        [TestMethod]
         public static void UtilityTestingAllPossibleIdenticalPairsOfCards(Action<Card, Card> testingDelegate) 
         {
              foreach (Suit suitForward in Enum.GetValues(typeof(Suit)))

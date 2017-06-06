@@ -148,8 +148,8 @@ namespace CardSimulator3ClassLibrary
         public override int GetHashCode()
         {
             int hash = 17;
-            hash = (int)this.suit * 23 + this.suit.GetHashCode();
-            hash = (int)this.faceValue * 23 + this.faceValue.GetHashCode();
+            hash = (int)suit * 23 + suit.GetHashCode();
+            hash = (int)faceValue * 23 + faceValue.GetHashCode();
             return hash;
         }
 

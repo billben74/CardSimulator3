@@ -58,11 +58,11 @@ namespace CardSimUnitTests
         [TestMethod]
         public void TestmakeStandardListOfCards() 
         {
-            List<Card> testCards = DeckOfCards.makeStandardListOfCards();
+            DeckOfCards testCards = DeckOfCards.MakeStandardListOfCards();
             int index = 0;
-            foreach (Card c in testCards)
+            foreach (Card c in testCards.CardDeck)
             {
-                Assert.AreEqual(this.completeDeck[index], testCards[index]);
+                Assert.AreEqual(this.completeDeck[index], testCards.CardDeck[index]);
                 index++;
             }
         }
@@ -78,9 +78,87 @@ namespace CardSimUnitTests
                 Card c = deck.DealCard();
       
                 Assert.AreEqual(testCard, c);
-                Assert.AreEqual(deckSize--, deck.deckSize());
+                Assert.AreEqual(deckSize--, deck.DeckSize());
+            }
+            Assert.IsTrue(deckSize == 0);
+
+            bool fail = true;
+            try
+            {
+                Card c = deck.DealCard();
+            }
+            catch (ArgumentOutOfRangeException drop)
+            {
+                fail = false;
+            }
+            finally
+            {
+                Assert.IsFalse(fail);
+            }
+
+        }
+
+        /// <summary>
+        /// I want to test the exception that should be thrown by peek when index out of range as well as peeking
+        /// </summary>
+        [TestMethod]
+        public void TestPeek()
+        {
+            
+            DeckOfCards deck = new DeckOfCards();
+            int deckSize = 0;
+            foreach (Card testCard in this.completeDeck)
+            {
+                Card c = deck.Peek(deckSize++);
+
+                Assert.AreEqual(testCard, c);
+            }
+
+            Assert.IsTrue(deckSize == 52);
+            bool fail = true;
+            try
+            {
+                Card c = deck.Peek(deckSize);
+            }
+            catch (IndexOutOfRangeException drop)
+            {
+                fail = false;
+            }
+            finally
+            {
+                Assert.IsFalse(fail);
+            }
+ 
+        }
+        /// <summary>
+        /// Testing positive and negatives.
+        /// </summary>
+        [TestMethod]
+        public void TestContainsFaceValue()
+        {
+            DeckOfCards cards = new DeckOfCards();
+            cards.InitialiseCards();
+            int index = 0;
+            foreach (Card c in cards.GetCardEnumerator())
+            {
+                Assert.IsTrue(cards.ContainsFaceValue(this.completeDeck[index++].faceValue));
+            }
+          
+            List<Card> tinyOnlyTwoFaceValueListofCards = new List<Card>();
+            tinyOnlyTwoFaceValueListofCards.Add(new Card(Suit.Clubs, FaceValue.Two));
+            DeckOfCards tinyTwoDeck = new DeckOfCards(tinyOnlyTwoFaceValueListofCards);
+            
+            foreach (Card completeDeckCard in this.completeDeck)
+            {
+                if (completeDeckCard.faceValue != FaceValue.Two)
+                {
+                    Assert.IsFalse(tinyTwoDeck.ContainsFaceValue(completeDeckCard.faceValue));    
+                }
             }
         }
+
+
+
 
         /// <summary>
         /// Test that the overload of makeStandardListOfCards that takes an already made List of cards 
@@ -91,21 +169,21 @@ namespace CardSimUnitTests
         [TestMethod]
         public void TestmakeStandardListOfCardsWithListofCardsArgumentParameter()
         {
-            List<Card> testCards = new List<Card>();
+            DeckOfCards testCards = new DeckOfCards();
             int index = 0;
             //This is not how you should normally use this function.
             //You should use it to "reset" a deck to standard with creating
             //two identical references, but I'm doing this to make sure that 
             //the method does modify the parameter and return a reference to it.
-            List<Card> checkReferencesAreEqual = new List<Card>();
-            checkReferencesAreEqual = DeckOfCards.makeStandardListOfCards(testCards);
+            DeckOfCards checkReferencesAreEqual = new DeckOfCards();
+            checkReferencesAreEqual = DeckOfCards.MakeStandardListOfCards(testCards);
 
             Assert.IsTrue(Object.ReferenceEquals(checkReferencesAreEqual, testCards));
 
 
-            foreach (Card c in testCards)
+            foreach (Card c in testCards.CardDeck)
             {
-                Assert.AreEqual(this.completeDeck[index], testCards[index]);
+                Assert.AreEqual(this.completeDeck[index], testCards.CardDeck[index]);
                 index++;
             }
         }
@@ -125,7 +203,7 @@ namespace CardSimUnitTests
         {
             //completeDeck
             DeckOfCards deck = new DeckOfCards();
-            List<Card> clonedDeck = deck.cloneDeck();
+            DeckOfCards clonedDeck = deck.CloneDeck();
 
             //Check that the cloneDeck is a different reference to private field DeckOfCards.cardDeck
             PrivateObject pObj = new PrivateObject(deck);
@@ -133,14 +211,16 @@ namespace CardSimUnitTests
             Assert.IsFalse(Object.ReferenceEquals(useToCheckCloneMakesADifferentReference, clonedDeck));
 
             //Check values of cards in the clonedDeck are the same as in the DeckOfCards.cardDeck
-            IEnumerable<Tuple<Card,Card>> tupledEnumerator = MultipleIterate.Over(clonedDeck,deck.GetCardEnumerator());
+            IEnumerable<Tuple<Card,Card>> tupledEnumerator = MultipleIterate.Over(clonedDeck.GetCardEnumerator(),deck.GetCardEnumerator());
             foreach (var decksTuple in tupledEnumerator)
             {
                 Assert.AreEqual(decksTuple.Item1, decksTuple.Item2);
                 Assert.IsFalse(Object.ReferenceEquals(decksTuple.Item1, decksTuple.Item2));
             }
         }
-  
+
+      
+
         [TestMethod]
         public void TestSetDeck()
         {
@@ -190,7 +270,7 @@ namespace CardSimUnitTests
             deck.SetDeck(cards);
             Random anotherRandom = new Random();  
             List<List<Card>> binOfDecks = new List<List<Card>>();
-            List<Card> temp = new List<Card>();
+            DeckOfCards temp = new DeckOfCards();
 
             int TWO_THREE_FOUR = 0;
             int TWO_FOUR_THREE = 0;
@@ -208,15 +288,15 @@ namespace CardSimUnitTests
                             deck.Shuffle();
                             break;
                         case 1:
-                            deck.Shuffle(cards);
+                            deck.Shuffle(new DeckOfCards(cards));
                             break;
                         case 2:
-                            deck.Shuffle(cards, anotherRandom);
+                            deck.Shuffle(new DeckOfCards(cards), anotherRandom);
                             break;
                         default:
                             throw new IndexOutOfRangeException("Shuffle only has three overloads but the shuffleOverload index is not 0,1 or 2");
                     }
-                    temp = deck.cloneDeck();
+                    temp = deck.CloneDeck();
                     //each permumtation
                     Card[] twoThreeFour = new Card[] { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Four) };
                     Card[] twoFourThree = new Card[] { new Card(Suit.Spades, FaceValue.Two), new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three) };
@@ -226,12 +306,12 @@ namespace CardSimUnitTests
                     Card[] fourThreeFour = new Card[] { new Card(Suit.Spades, FaceValue.Four), new Card(Suit.Spades, FaceValue.Three), new Card(Suit.Spades, FaceValue.Two) };
 
                     //bins
-                    TWO_THREE_FOUR += temp.SequenceEqual(twoThreeFour) == true ? 1 : 0;
-                    TWO_FOUR_THREE += temp.SequenceEqual(twoFourThree) == true ? 1 : 0;
-                    THREE_TWO_FOUR += temp.SequenceEqual(threeTwoFour) == true ? 1 : 0;
-                    THREE_FOUR_TWO += temp.SequenceEqual(threeFourTwo) == true ? 1 : 0;
-                    FOUR_TWO_FOUR += temp.SequenceEqual(fourTwoThree) == true ? 1 : 0;
-                    FOUR_THREE_FOUR += temp.SequenceEqual(fourThreeFour) == true ? 1 : 0;
+                    TWO_THREE_FOUR += temp.CardDeck.SequenceEqual(twoThreeFour) == true ? 1 : 0;
+                    TWO_FOUR_THREE += temp.CardDeck.SequenceEqual(twoFourThree) == true ? 1 : 0;
+                    THREE_TWO_FOUR += temp.CardDeck.SequenceEqual(threeTwoFour) == true ? 1 : 0;
+                    THREE_FOUR_TWO += temp.CardDeck.SequenceEqual(threeFourTwo) == true ? 1 : 0;
+                    FOUR_TWO_FOUR += temp.CardDeck.SequenceEqual(fourTwoThree) == true ? 1 : 0;
+                    FOUR_THREE_FOUR += temp.CardDeck.SequenceEqual(fourThreeFour) == true ? 1 : 0;
 
             }
                 ///TODO find a good way to test randomness. This is not a good way. See commments above this function.

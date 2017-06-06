@@ -9,21 +9,44 @@ namespace CardSimulator3ClassLibrary
 {
     public class DeckOfCards
     {
+        ///TODO : make methods have upper case start
         private bool initialised = false;
-        private bool shuffled = false;
+
         private List<Card> cardDeck = new List<Card>();
 
         private static readonly Random randomNumberGenerator = new Random();
         private static readonly object syncLock = new object(); //Since we are using a static instance we could get thread issues so i'll use sync
 
-        public int deckSize() {
-            return cardDeck == null ? 0 : cardDeck.Count + 1;            
+        public DeckOfCards() 
+        {
+            
+        }
+        public DeckOfCards(List<Card> cards) 
+        {
+            if (cards == null) 
+            {
+                throw new ArgumentNullException();
+            } 
+            initialised = true;
+            this.CardDeck = cards;
         }
 
-        public bool hasCards()
+        public List<Card> CardDeck
         {
-            return cardDeck.Count != 0 ? true : false;
+            get { return cardDeck; }
+            set { SetDeck(value);}
         }
+            
+
+        public int DeckSize() {
+            return CardDeck == null ? 0 : CardDeck.Count + 1;            
+        }
+
+        public bool HasCards()
+        {
+            return CardDeck.Count != 0 ? true : false;
+        }
+
         /// <summary>
         /// Gets IEnumerable, Card,
         /// Use to go through cards in a deck without removing the cards.
@@ -37,15 +60,59 @@ namespace CardSimulator3ClassLibrary
                 InitialiseCards();
             }
 
-            for (int i = 0; i < cardDeck.Count; i++)
+            for (int i = 0; i < CardDeck.Count; i++)
             {
-                yield return cardDeck[i];
+                yield return CardDeck[i];
             }
 
         }
-        
+
         /// <summary>
-        /// Use to deal (remove) cards 
+        /// Sometimes you need to look at cards without taking them.
+        /// </summary>
+        /// <param name="cardNumber"></param>
+        /// <returns></returns>
+        public Card Peek(int cardNumber) 
+        {
+            if (initialised == false)
+            {
+                InitialiseCards();
+            }
+            if (cardNumber < CardDeck.Count)
+            {
+                return CardDeck[cardNumber];
+            }
+            else 
+            {
+                throw new IndexOutOfRangeException(); 
+            }            
+        }
+
+        public bool ContainsFaceValue(FaceValue faceValue) 
+        {
+            foreach (Card card in GetCardEnumerator()) 
+            {
+                if (card.faceValue == faceValue) { return true; }
+            }
+            return false;
+        }
+        
+        public DeckOfCards GetCardsWithSameFaceValue(FaceValue faceValue) 
+        {
+            DeckOfCards deckToReturn = new DeckOfCards();
+            foreach (Card card in GetCardEnumerator()) 
+            {
+                if (card.faceValue == faceValue) {
+                    deckToReturn.CardDeck.Add(card);
+                }
+            }
+            return deckToReturn;
+        }  
+
+
+        /// <summary>
+        /// Use to deal (remove) cards.  It will throw ArgumentOutOfRange if you try to remove when empty.
+        /// I would prefer the client to take responsibilty here.
         /// </summary>
         /// <returns></returns>
         public Card DealCard() 
@@ -54,8 +121,8 @@ namespace CardSimulator3ClassLibrary
             {
                 InitialiseCards();
             }
-            Card cardToDeal = cardDeck[0];
-            cardDeck.RemoveAt(0);
+            Card cardToDeal = CardDeck[0];
+            CardDeck.RemoveAt(0);
             return cardToDeal;
         } 
 
@@ -74,18 +141,18 @@ namespace CardSimulator3ClassLibrary
         /// This is a deep copy, a clone, of the current  cardDeck (List of cards) in the DeckOfCards
         /// </summary>
         /// <returns>Clone of cardDeck</returns>
-        public List<Card> cloneDeck() 
+        public DeckOfCards CloneDeck() 
         {
             if (initialised == false)
             {
                 InitialiseCards();
             }
             List<Card> returnClonedDeck = new List<Card>();
-            foreach (Card cardToClone in cardDeck) 
+            foreach (Card cardToClone in CardDeck) 
             {
                 returnClonedDeck.Add(new Card(cardToClone));
             }
-            return returnClonedDeck;   
+            return new DeckOfCards(returnClonedDeck);   
         }
 
         /// <summary>
@@ -93,24 +160,23 @@ namespace CardSimulator3ClassLibrary
         /// </summary>
         public void InitialiseCards()
         {
-            cardDeck = makeStandardListOfCards(cardDeck);
+            CardDeck = MakeStandardListOfCards().CardDeck;
             initialised = true;
         }
 
-        public List<Card> Shuffle() 
+        public DeckOfCards Shuffle() 
         {
             if (initialised == false)
             {
                 InitialiseCards();
                 initialised = true;
             }
-            shuffled = true;
-            return Shuffle(this.cardDeck);
+            return Shuffle(this);
         } 
 
-        public List<Card> Shuffle(List<Card> cardList)
+        public DeckOfCards Shuffle(DeckOfCards deck)
         {
-            return Shuffle(cardList, randomNumberGenerator);
+            return Shuffle(deck, randomNumberGenerator);
         }
 
         /// <summary>
@@ -121,22 +187,21 @@ namespace CardSimulator3ClassLibrary
         /// <typeparam name="T">The type of the list</typeparam>
         /// <param name="list">The list to be shuffled</param>
         /// <param name="rnd">Random class instance</param>
-        public List<Card> Shuffle(List<Card> cardList, Random rnd)
+        public DeckOfCards Shuffle(DeckOfCards deck, Random rnd)
         {
 
             int n = 0;
-            for (int i = cardList.Count - 1; i > 0; i--)
+            for (int i = deck.CardDeck.Count - 1; i > 0; i--)
             {
                 lock (syncLock) //I am using a static instance for rnd, 
                 //so we should lock the thread in case another thread tries to use the random number gen. 
                 {
                     n = rnd.Next(i + 1);
                 }
-                Swap(cardList, i, n);
+                Swap(deck.CardDeck, i, n);
             }
-     
-            shuffled = true;
-            return cardList;
+  
+            return deck;
         }
 
 
@@ -151,7 +216,7 @@ namespace CardSimulator3ClassLibrary
         /// A utility factory-like method to make a list of cards.
         /// We need List's random access for shuffle. 
         /// </summary>
-        public static List<Card> makeStandardListOfCards()
+        public static DeckOfCards MakeStandardListOfCards()
         {
             List<Card> cards = new List<Card>();
             foreach (Suit suit in Enum.GetValues(typeof(Suit)))
@@ -167,7 +232,7 @@ namespace CardSimulator3ClassLibrary
                     }
                 }
             }
-            return cards;
+            return new DeckOfCards(cards);
         }
 
         /// <summary>
@@ -175,16 +240,16 @@ namespace CardSimulator3ClassLibrary
         /// </summary>
         /// <returns>Your list which is now populated with a standard 52 cards</returns>
         /// <throws>NullReferenceException if a null List of cards if supplied as argument </throws>
-        public static List<Card> makeStandardListOfCards(List<Card> toBeModifiedAsStandard)
+        public static DeckOfCards MakeStandardListOfCards(DeckOfCards toBeModifiedAsStandard)
         {
             if (Object.ReferenceEquals(toBeModifiedAsStandard,null))
             {
                 throw new NullReferenceException("You must provide a non-null List<Card> for makeStandardListOfCards");
             }
-            List<Card> tmpCards = makeStandardListOfCards();
-            foreach (Card c in tmpCards)
+            DeckOfCards tmpDeck = MakeStandardListOfCards();
+            foreach (Card c in tmpDeck.CardDeck)
             {
-                toBeModifiedAsStandard.Add(new Card(c));
+                toBeModifiedAsStandard.CardDeck.Add(new Card(c));
             }
             return toBeModifiedAsStandard;
         }
